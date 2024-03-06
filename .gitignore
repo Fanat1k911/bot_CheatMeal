@@ -1,0 +1,7 @@
+.env
+/venv
+aiobot_cheatmeal/bot/settings/config.py
+.idea
+*.cpython-311.pyc
+aiobot_cheatmeal/iiko/apis/storage
+aiobot_cheatmeal/iiko/plan.txt
