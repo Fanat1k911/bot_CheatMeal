@@ -5,4 +5,5 @@ aiobot_cheatmeal/bot/settings/config.py
 *.cpython-311.pyc
 *.json
 *.xml
+*.log
 aiobot_cheatmeal/iiko/plan.txt
