@@ -6,7 +6,7 @@ import time
 
 
 def getCashDay():
-    # print(requests.get(url_cash_today).status_code)
+    print('Status Code = ', requests.get(url_cash_today).status_code)
     data_collecting = False
     flagFalse = 0
     while data_collecting is False:
@@ -31,4 +31,3 @@ def getCashDay():
                     data_collecting = True
                     print('Попробуйте еще раз запросить отчет. Нужен перезапуск приложения')
                     break
-    # TODO: можно вести логи с указанием времени и происходящими операциями

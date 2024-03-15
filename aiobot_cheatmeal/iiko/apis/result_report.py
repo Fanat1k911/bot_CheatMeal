@@ -86,7 +86,7 @@ def getResultReport():
             list_day.insert(15, '\n')
     # Запись готового отчета в отдельный файл json
     with open(
-            '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDayReports/' + today + '.json',
-            'w', encoding='UTF-8') as report:
+            '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/' + today + '.json',
+            'wt+', encoding='UTF-8') as report:
         json.dump(list_day, report, ensure_ascii=False)
     print('Отчет сохранен в отдельный файл')

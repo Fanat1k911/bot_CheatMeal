@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 import aiogram.loggers
 from aiogram import Router
@@ -7,29 +8,30 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart, Command, CommandObject
 
-import aiobot_cheatmeal.iiko.apis.cash_day
-import aiobot_cheatmeal.iiko.apis.result_report
+# import aiobot_cheatmeal.iiko.apis.cash_day
+# import aiobot_cheatmeal.iiko.apis.result_report
+import aiobot_cheatmeal.iiko.functions.all_funcs
 
 from aiobot_cheatmeal.bot.keyboards import keyboards
-from aiobot_cheatmeal.bot.utils.states import Location
-from aiobot_cheatmeal.bot.utils import is_admin
 from aiobot_cheatmeal.iiko.apis.URLgenerator import today, yesterday
 
 command_router = Router()
 
 
 @command_router.message(CommandStart())
-async def cmd_start(msg: Message) -> None:
-    await msg.answer(f'<b>Привет, {msg.from_user.first_name.capitalize()}</b> 👋')
+async def cmd_start(msg: Message) -> Message:
+    await msg.answer(
+        f'<b>Привет, {msg.from_user.first_name.capitalize()}👋</b>' + '\n' +
+        f'Я - виртуальный помощник. Я помогаю в некоторых вопросах по части автоматизации')
 
 
-@command_router.message(Command('sendreportday'))
+@command_router.message(Command('status'))
 async def send_report_of_the_day(msg: Message) -> Message:
-    aiobot_cheatmeal.iiko.apis.cash_day.getCashDay()
-    aiobot_cheatmeal.iiko.apis.result_report.getResultReport()
+    aiobot_cheatmeal.iiko.functions.all_funcs.getCashDay()
+    aiobot_cheatmeal.iiko.functions.all_funcs.getResultReport()
     # await msg.answer('здесь будет ежедневный отчет')
     with open(
-            '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDayReports/' + today + '.json',
+            '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/afterProcessing/' + today + '.json',
             'r', encoding='utf-8') as file:
         stringer = json.load(file)
 
@@ -39,17 +41,10 @@ async def send_report_of_the_day(msg: Message) -> Message:
                      .replace('[', '')
                      .replace(']', '')
                      .replace('\\n', '\n'))
-    print('Отчет отправлен в телеграм')
-
-
-@command_router.message(Command('reports'), is_admin.IsAdmin(is_admin.admin_ids))
-async def command_vision(msg: Message, state: FSMContext):
-    await msg.answer('Выберите локацию продаж:', reply_markup=keyboards.inline_area_kb)
-    await state.set_state(Location.CHOOSE_LOCATION)
+    logging.info('Отчет отправлен в телеграмм')
 
 
 @command_router.message(Command('help'))
-async def cmd_help(msg: Message) -> None:
+async def cmd_help(msg: Message) -> Message:
     await msg.answer(text='/start - запуск/перезапуск бота')
-    await msg.answer(text='/reports - заполнить отчет')
-    await msg.answer(text='/sendreportday - отправка ежедневного отчета в чат')
+    await msg.answer(text='/status - отправка ежедневного отчета в чат')
