@@ -9,4 +9,4 @@ aiobot_cheatmeal/bot/settings/config.py
 aiobot_cheatmeal/iiko/plan.txt
 .gitignore
 bot_CheatMeal/.env
-.env
+*.env
