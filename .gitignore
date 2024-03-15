@@ -1,4 +1,4 @@
-.env/
+/Users/a12345/PycharmProjects/bot_CheatMeal/.env
 /venv/
 aiobot_cheatmeal/bot/settings/config.py
 .idea/
