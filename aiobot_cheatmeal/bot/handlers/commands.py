@@ -7,13 +7,10 @@ from aiogram import Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart, Command, CommandObject
-
-# import aiobot_cheatmeal.iiko.apis.cash_day
-# import aiobot_cheatmeal.iiko.apis.result_report
-import aiobot_cheatmeal.iiko.functions.all_funcs
+from aiobot_cheatmeal.iiko.functions.all_funcs import getCashDay, getResultReport
 
 from aiobot_cheatmeal.bot.keyboards import keyboards
-from aiobot_cheatmeal.iiko.apis.URLgenerator import today, yesterday
+from aiobot_cheatmeal.iiko.functions.all_funcs import today, yesterday
 
 command_router = Router()
 
@@ -27,8 +24,8 @@ async def cmd_start(msg: Message) -> Message:
 
 @command_router.message(Command('status'))
 async def send_report_of_the_day(msg: Message) -> Message:
-    aiobot_cheatmeal.iiko.functions.all_funcs.getCashDay()
-    aiobot_cheatmeal.iiko.functions.all_funcs.getResultReport()
+    getCashDay()
+    getResultReport()
     # await msg.answer('здесь будет ежедневный отчет')
     with open(
             '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/afterProcessing/' + today + '.json',

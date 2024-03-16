@@ -165,6 +165,8 @@ def getResultReport():
             'wt+', encoding='UTF-8') as report:
         json.dump(list_day, report, ensure_ascii=False)
     logging.info('Отчет сохранен в отдельный файл')
+    logging.info(
+        f"Размер хранилища: {get_folder_size('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage')}")
 
 
 def getManById(idMan, token):
@@ -261,3 +263,13 @@ def getEmployes():
     Копирует из таблицы ФИ сотрудников на текущий день и отправляет в телеграм-чат Бара
     :return: Список сотрудников
     """
+
+
+def get_folder_size(folder):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(folder):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    total_size = f'{total_size / 1000} kB'
+    return total_size
