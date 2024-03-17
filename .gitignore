@@ -1,6 +1,6 @@
 /Users/a12345/PycharmProjects/bot_CheatMeal/.env
 /venv/
-aiobot_cheatmeal/bot/settings/config.py
+/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/bot/settings/
 .idea/
 *.cpython-311.pyc
 *.json
@@ -10,3 +10,4 @@ aiobot_cheatmeal/iiko/plan.txt
 .gitignore
 bot_CheatMeal/.env
 *.env
+aiobot_cheatmeal/googlesheets/storage/service_files/

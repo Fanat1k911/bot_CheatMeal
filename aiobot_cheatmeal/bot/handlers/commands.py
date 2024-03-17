@@ -8,6 +8,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart, Command, CommandObject
 from aiobot_cheatmeal.iiko.functions.all_funcs import getCashDay, getResultReport
+from aiobot_cheatmeal.googlesheets.liteFunc import getEmployees
 
 from aiobot_cheatmeal.bot.keyboards import keyboards
 from aiobot_cheatmeal.iiko.functions.all_funcs import today, yesterday
@@ -22,8 +23,17 @@ async def cmd_start(msg: Message) -> Message:
         f'Я - виртуальный помощник. Я помогаю в некоторых вопросах по части автоматизации')
 
 
+@command_router.message(Command('staff'))
+async def cmd_staff(msg: Message) -> Message:
+    logging.info('Запрос на персонал в смене')
+    await msg.answer('Сейчас посмотрю ..')
+    staff = getEmployees()
+    await msg.answer(staff)
+
+
 @command_router.message(Command('status'))
 async def send_report_of_the_day(msg: Message) -> Message:
+    logging.info('Выполняем запрос на получение ежедневного отчета ...')
     getCashDay()
     getResultReport()
     # await msg.answer('здесь будет ежедневный отчет')

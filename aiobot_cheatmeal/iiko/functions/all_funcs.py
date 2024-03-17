@@ -3,6 +3,9 @@ import os
 import time
 import math
 from xml.etree import ElementTree
+import httplib2
+import apiclient
+from oauth2client.service_account import ServiceAccountCredentials
 
 import requests
 import json
@@ -10,6 +13,8 @@ from dotenv import load_dotenv, find_dotenv
 import logging
 
 load_dotenv(find_dotenv())
+CREDENTIALS_FILE = ('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/bot/settings/'
+                    'service_account.json')
 
 today = str(datetime.date.today())  # формат даты  "2024-01-19" / "ГГГГ-ММ-ДД"
 yesterday = str(datetime.date.today() - datetime.timedelta(days=1))
@@ -20,7 +25,7 @@ yerstoday_for_department_url = str(yerstoday_for_department_url.strftime('%d.%m.
 
 logging.basicConfig(
     filename='/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/logging/logging.log',
-    level=logging.INFO)
+    level=logging.INFO, format='%(asctime)s -%(levelname)s - %(name)s -  %(message)s')
 
 id_department_tubing = '52f6b2d9-58ec-4f87-bcb0-934178916e76'
 id_department_poolbar = '19589761-94fa-141d-017e-573be2660011'
@@ -173,11 +178,14 @@ def getManById(idMan, token):
     token = getNewToken()
     url_get_by_id = 'https://cheat-meal-co.iiko.it:443/resto/api/employees/byId/' + idMan + '?key=' + token
     resp = requests.get(url_get_by_id).text
-    with open('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/' + idMan + '.xml',
-              'w', encoding='utf-8') as xFile:
+    with open(
+            '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/ManagerID/'
+            + idMan + '.xml',
+            'w', encoding='utf-8') as xFile:
         xFile.write(resp)
     tree = ElementTree.parse(
-        '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/' + idMan + '.xml')
+        '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/ManagerID/'
+        + idMan + '.xml')
     root = tree.getroot()
     return root[2].text
 
@@ -200,9 +208,6 @@ def getProductsOfDepartment(id_department, token):
     # root = tree.getroot()
     # for i in (root[0].items()):
     #     print(i)
-    size_file = (os.path.getsize(
-        '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/'))
-    print('Размер дирректории хранилища: ', size_file / 1000, 'kB')
 
 
 # TODO: здесь будет функция получения списка продаж для выявления кол-ва чеков и среднего
@@ -258,18 +263,36 @@ def getSalesList(token):
     return resultOrdersPoolbar, resultOrdersToobing
 
 
+def get_folder_size(folder):
+    """
+    Функция рекурсивно пробегается по директории, которую принимает в качестве параметра
+    и возвращает ее размер в киллобайтах
+    :param folder: Директория для уточнения ее размера
+    :return: Размер директории в kB
+    """
+    total_size = 0
+    flag_size = 0
+    for dirpath, dirnames, filenames in os.walk(folder):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+            # TODO: округлить до сотых итоговый размер хранилища
+    while total_size > 1000:
+        total_size = total_size / 1000
+        flag_size += 1
+    if flag_size == 0:
+        total_size = f'{round(total_size, 2)} B'
+    elif flag_size == 1:
+        total_size = f'{round(total_size, 2)} kB'
+    elif flag_size == 2:
+        total_size = f'{round(total_size, 2)} Mb'
+    elif flag_size == 3:
+        total_size = f'{round(total_size, 2)} Gb'
+    return total_size
+
+
 def getEmployes():
     """
     Копирует из таблицы ФИ сотрудников на текущий день и отправляет в телеграм-чат Бара
     :return: Список сотрудников
     """
-
-
-def get_folder_size(folder):
-    total_size = 0
-    for dirpath, dirnames, filenames in os.walk(folder):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
-            total_size += os.path.getsize(fp)
-    total_size = f'{total_size / 1000} kB'
-    return total_size
