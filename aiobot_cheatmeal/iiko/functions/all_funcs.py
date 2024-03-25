@@ -103,7 +103,8 @@ def getResultReport():
 
     with open(
             '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/beforeProcessing/' +
-            today + '.json', 'r',
+            today + '.json',
+            mode='r',
             encoding='utf-8') as file:
         data_json = file.read()
         result = json.loads(data_json)
@@ -170,6 +171,7 @@ def getResultReport():
             'wt+', encoding='UTF-8') as report:
         json.dump(list_day, report, ensure_ascii=False)
     logging.info('Отчет сохранен в отдельный файл')
+    clean_logger()
     logging.info(
         f"Размер хранилища: {get_folder_size('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage')}")
 
@@ -210,7 +212,7 @@ def getProductsOfDepartment(id_department, token):
     #     print(i)
 
 
-# TODO: здесь будет функция получения списка продаж для выявления кол-ва чеков и среднего
+# TODO: Функция получения списка продаж для выявления кол-ва чеков и среднего
 def getSalesList(token):
     """
     Получает список продаж для подсчета кол-ва чеков на локации
@@ -291,8 +293,24 @@ def get_folder_size(folder):
     return total_size
 
 
-def getEmployes():
-    """
-    Копирует из таблицы ФИ сотрудников на текущий день и отправляет в телеграм-чат Бара
-    :return: Список сотрудников
-    """
+def clean_logger():
+    """Функция очищает логи оставляя их в кол-ве 500 строк"""
+    with open('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/logging/logging.log',
+              mode='a+',
+              encoding='utf-8') as logfile:
+        last_slash = logfile.name.rfind('/') + 1
+        logfile.seek(0)
+        if len(logfile.readlines()) > 1000:
+            logfile.seek(0)
+            lostring = logfile.readlines()[-500:-1]
+            logfile.seek(0)
+            logfile.truncate(0)
+            logfile.writelines(lostring)
+            logfile.seek(0)
+            logging.info(
+                f"Файл {logfile.name[last_slash:]} очищен. Кол-во оставшихся строк: {len(logfile.readlines())}")
+
+
+# TODO: Функция очистки папки сторедж от уствревших файлов (отчеты старше текущего месяца)
+def clean_storage():
+    pass

@@ -6,12 +6,13 @@ import aiogram.loggers
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.markdown import hlink
 from aiogram.filters import CommandStart, Command, CommandObject
 from aiobot_cheatmeal.iiko.functions.all_funcs import getCashDay, getResultReport
 from aiobot_cheatmeal.googlesheets.liteFunc import getEmployees
 
 from aiobot_cheatmeal.bot.keyboards import keyboards
-from aiobot_cheatmeal.iiko.functions.all_funcs import today, yesterday
+from aiobot_cheatmeal.iiko.functions.all_funcs import today, yesterday, clean_logger
 
 command_router = Router()
 
@@ -39,7 +40,8 @@ async def send_report_of_the_day(msg: Message) -> Message:
     # await msg.answer('здесь будет ежедневный отчет')
     with open(
             '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/afterProcessing/' + today + '.json',
-            'r', encoding='utf-8') as file:
+            mode='r',
+            encoding='utf-8') as file:
         stringer = json.load(file)
 
     await msg.answer(str(stringer)
@@ -55,3 +57,9 @@ async def send_report_of_the_day(msg: Message) -> Message:
 async def cmd_help(msg: Message) -> Message:
     await msg.answer(text='/start - запуск/перезапуск бота')
     await msg.answer(text='/status - отправка ежедневного отчета в чат')
+
+
+@command_router.message(Command('about'))
+async def cmd_about(msg: Message) -> Message:
+    text = hlink('Наш сайт', 'https://cheatmealohta.ru/')
+    await msg.answer(text=text)

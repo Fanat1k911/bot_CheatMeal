@@ -28,7 +28,7 @@ bot = Bot(token=os.getenv('TOKEN_API'), parse_mode='HTML')
 
 async def main():
     dp.include_router(command_router)
-    print('Start polling ...')
+    print('Бот запущен !')
     await bot.delete_my_commands()
     await bot.set_my_commands(commands=cmds)
     await dp.start_polling(bot)
