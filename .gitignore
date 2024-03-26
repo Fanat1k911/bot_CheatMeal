@@ -10,4 +10,4 @@ aiobot_cheatmeal/iiko/plan.txt
 .gitignore
 bot_CheatMeal/.env
 *.env
-aiobot_cheatmeal/googlesheets/storage/service_files/
+#aiobot_cheatmeal/googlesheets/storage/service_files/
