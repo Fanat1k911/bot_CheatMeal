@@ -314,3 +314,8 @@ def clean_logger():
 # TODO: Функция очистки папки сторедж от уствревших файлов (отчеты старше текущего месяца)
 def clean_storage():
     pass
+
+
+def get_all_employees():
+    resp = requests.get(
+        'https://cheat-meal-co.iiko.it:443/resto/api/employees/roles/?key' + token)

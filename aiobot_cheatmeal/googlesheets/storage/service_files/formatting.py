@@ -3,9 +3,9 @@ from typing import Dict
 format_a1_a2_cell = {
     'horizontalAlignment': 'CENTER',
     'backgroundColor': {
-        'red': 0.005,
-        'green': 0.855,
-        'blue': 0.304,
+        'red': '0.9764706',
+        'green': '0.79607844',
+        'blue': '0.6117647',
     },
     "textFormat": {
         'bold': True
