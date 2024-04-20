@@ -11,12 +11,16 @@ from aiobot_cheatmeal.googlesheets.storage.service_files import list_employees
 from aiobot_cheatmeal.googlesheets.storage.service_files.dict_days_week import days
 from aiobot_cheatmeal.googlesheets.storage.service_files import const_variables, formatting
 from aiobot_cheatmeal.iiko.functions.all_funcs import mk_dict_employees_roles
+from aiobot_cheatmeal.googlesheets.storage.service_files.decorators import timer
 
 gc = gspread.service_account(
     '/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/'
     'googlesheets/storage/service_files/service_account.json')
 
+global merge_list_2_cells
 
+
+@timer
 def getEmployees():
     listEmployees = []
     strEmp = ''
@@ -36,6 +40,7 @@ def getEmployees():
     return strEmp
 
 
+@timer
 def insert_col(spreadsheetId, idList: int, startIndex, endIndex):
     sht = gc.open_by_key(spreadsheetId)
     requests = []
@@ -57,6 +62,7 @@ def insert_col(spreadsheetId, idList: int, startIndex, endIndex):
     sht.batch_update(body)
 
 
+@timer
 def insert_rows_for_percent(spreadsheet_key: str, sheet_name: str):
     # берем строки с персоналом пулбара,
     # сохр их в переменную а потом вставляем их с 19 строки (строки должны быть созданы в таблице)
@@ -77,6 +83,7 @@ def insert_rows_for_percent(spreadsheet_key: str, sheet_name: str):
 
     # Вставка названия подтаблички "Процент"
     sheet.update([['Процент']], range_name=f'A{lr + 2}')
+    sheet.insert_row(['Табель'], index=1)
 
     #####################################################################
     # ищем первое число месяца в подтаблице "процент"
@@ -100,7 +107,7 @@ def insert_rows_for_percent(spreadsheet_key: str, sheet_name: str):
         for row in range(const_variables.DAYS_COUNT_OF_MONTH[const_variables.NEXT_MONTH] + 2):  # rows
             lst_helper.append(
                 (f'=IF(NOT(ISBLANK({utils.rowcol_to_a1(f1st_col + col, 3 + row)}));'
-                 f'INDIRECT("\'кудир апрель бар\'!$C$"&VALUE({utils.rowcol_to_a1(2, 3 + row)}))'
+                 f'INDIRECT("\'кудир апрель бар\'!$C$"&VALUE({utils.rowcol_to_a1(3, 3 + row)}))'
                  f'*IFERROR({utils.rowcol_to_a1(f1st_col + col, 3 + row)}/'
                  f'(SUM({utils.rowcol_to_a1(f1st_col, 3 + row)}:{utils.rowcol_to_a1(9, 3 + row)})));)'))
 
@@ -127,6 +134,7 @@ def insert_rows_for_percent(spreadsheet_key: str, sheet_name: str):
     )
 
 
+@timer
 def search_list_in_sh(key: str, worksheet_title: worksheet):
     """
     Функция осуществляет по названия листа name_worksheet в книге spreadsheet
@@ -143,12 +151,14 @@ def search_list_in_sh(key: str, worksheet_title: worksheet):
     return flag
 
 
+@timer
 def get_listdays_of_month(numberOfMonth: int) -> list:
     if numberOfMonth in const_variables.DAYS_COUNT_OF_MONTH.keys():
         lst = [x for x in range(1, const_variables.DAYS_COUNT_OF_MONTH.get(numberOfMonth, 'hz') + 1)]
         return lst
 
 
+@timer
 def getday_of_week_to_rus(month):
     """
     Получает сегодняшнюю дату, берет первое число следующего месяца
@@ -168,6 +178,7 @@ def getday_of_week_to_rus(month):
     return list_weekdays
 
 
+@timer
 def if_list_created():
     # для тестов удалим таблицу перед запуском функции
     lsParsing = gc.open_by_key(id_keys.IdParsing)
@@ -181,14 +192,14 @@ def if_list_created():
         print(f'Лист "{month_year_title}" найден. Индекс: {lsParsing.get_worksheet_by_id(idByList).index}')
         lsParsing.del_worksheet_by_id(idByList)
         print(f'Лист "{month_year_title}" удален. Пауза 3 sec')
-        time.sleep(3)
+        time.sleep(2)
     else:
-        print(f'{month_year_title} не найден')
+        print(f'Лист {month_year_title} не найден')
 
 
 # if_list_created()
 
-
+@timer
 def mk_new_sheet_month():
     # сократим название переменных
     C_YEAR = const_variables.CURRENT_YEAR
@@ -347,37 +358,9 @@ def testformatting():
     parsing_sh = gc.open_by_key(id_keys.IdParsing)
     parsing_table = gc.open_by_key(id_keys.IdParsing).worksheet('May 24')
     # N_MTH = const_variables.NEXT_MONTH
-
-    # ищем первое число месяца в подтаблице "процент"
-    start_month_day = parsing_table.findall('1')
-    # ищем последнее число месяца в подтаблице "процент"
-    end_month_day = parsing_table.findall(str(const_variables.DAYS_COUNT_OF_MONTH[const_variables.NEXT_MONTH]))
-
-    # множественное присвоение параметров строк и стобцов, найденного методом поиска
-    start_row, start_col = start_month_day[-1].row + 1, start_month_day[-1].col
-    end_row, end_col = end_month_day[-1].row + 7, end_month_day[-1].col
-
-    start_index = utils.rowcol_to_a1(start_row, start_col)
-    end_index = utils.rowcol_to_a1(end_row, end_col)
-    cell_values = parsing_table.range(f'{start_index}:{end_index}')
-    lst_helper = []
-    f1st_col = start_month_day[-1].col
-
-    for col in range(8):  # cols
-        for row in range(const_variables.DAYS_COUNT_OF_MONTH[const_variables.NEXT_MONTH] + 2):  # rows
-            lst_helper.append(
-                (f'=IF(NOT(ISBLANK({utils.rowcol_to_a1(3 + col, 3)}));'
-                 f'INDIRECT("\'кудир апрель бар\'!$C$"&VALUE(C${f1st_col + col}))'
-                 f'*{utils.rowcol_to_a1(f1st_col + col, 3 + row)}/'
-                 f'(SUM({utils.rowcol_to_a1(f1st_col, 3 + row)}:{utils.rowcol_to_a1(9, 3 + row)}));)'))
-
-    for item in range(len(cell_values)):
-        cell_values[item].value = lst_helper[item]
-
-    parsing_table.update_cells(cell_list=cell_values, value_input_option="USER_ENTERED")
-
-    # 'IF(NOT(ISBLANK(C3));INDIRECT("\'кудир апрель бар\'!$C$"&VALUE(C$2))*C3/(SUM(C$3:C$9));)
-
+    merge_list_2_cells = ['A1:A2', 'B1:B2', 'R1:R2', 'S1:S2', 'AJ1:AJ2']
+    for couple in merge_list_2_cells:
+        parsing_table.merge_cells(name=couple, merge_type='merge_columns')
     # TODO: вставить значение в ячейку как формулу
     # value_input_option='USER_ENTERED'
     #  raw=False
@@ -386,18 +369,14 @@ def testformatting():
     #     fmt.format_cell_range(parsing_table, f'A{cell + 18}', save_format)
     #     print(f'done for A{cell}')
 
-
 # testformatting()
 
-
-def fill_cells(cols, rows):
-    stack_list = []
-    for item in range(8):  # cols
-        for row in range(const_variables.DAYS_COUNT_OF_MONTH[const_variables.NEXT_MONTH] + 2):  # rows
-            stack_list.append(
-                (f'IF(NOT(ISBLANK({utils.rowcol_to_a1(3 + row, 3)}));'
-                 f'INDIRECT("\'кудир апрель бар\'!$C$"&VALUE(C$2))'
-                 f'*{utils.rowcol_to_a1(3, 3 + row)}/(SUM(C$3:C$9));)'))
-    print(stack_list)
-
-# fill_cells(7, 33)
+# если таблица не создана - создаем таблицу размером 5х5 по индексу 0
+#
+#
+#
+#
+#
+#
+#
+#
