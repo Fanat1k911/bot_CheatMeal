@@ -316,6 +316,88 @@ def clean_storage():
     pass
 
 
-def get_all_employees():
-    resp = requests.get(
-        'https://cheat-meal-co.iiko.it:443/resto/api/employees/roles/?key' + token)
+def get_all_roles_from_employees(token):
+    if not os.path.exists('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/'
+                          'employees_and_roles/roles/roles.xml'):
+        resp = requests.get(
+            'https://cheat-meal-co.iiko.it:443/resto/api/employees/roles/?key=' + token)
+        with open(
+                file='/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/'
+                     'employees_and_roles/roles/roles.xml',
+                mode='w',
+                encoding='utf-8') as file:
+            file.write(resp.text)
+        return file.name
+    return ('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/'
+            'employees_and_roles/roles/roles.xml')
+
+
+# print(get_all_roles_from_employees(getNewToken()))
+def mk_dict_from_roles():
+    code_name_dict = {}
+    path = get_all_roles_from_employees(getNewToken())
+    tree = ElementTree.parse(source=path)
+    root = tree.getroot()
+    for child in root:
+        code_name_dict[child[1].text] = child[2].text
+    return code_name_dict
+
+
+# mk_dict_from_roles()
+
+
+def get_all_employees(token):
+    if not os.path.exists('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/'
+                          'employees_and_roles/employees/employees.xml'):
+        resp = requests.get(url='https://cheat-meal-co.iiko.it:443/resto/api/employees/?key=' + token)
+        with open(
+                file='/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/'
+                     'employees_and_roles/employees/employees.xml',
+                mode='w',
+                encoding='utf-8') as file:
+            file.write(resp.text)
+        return file.name
+    return ('/Users/a12345/PycharmProjects/bot_CheatMeal/aiobot_cheatmeal/iiko/apis/storage/everyDay/'
+            'employees_and_roles/employees/employees.xml')
+
+
+# print(get_all_employees(getNewToken()))
+
+
+def mk_dict_employees_roles():
+    dict_roles = mk_dict_from_roles()
+    path_employees = get_all_employees(getNewToken())
+    emp_roles_dict = {}
+    tree = ElementTree.parse(path_employees)
+    root = tree.getroot()
+    for i in range(len(root)):
+        # if root[i].find('login').text is None:
+        name = root[i].find('name').text
+        skill = root[i].find('mainRoleCode').text
+        if skill in dict_roles.keys():
+            skill = dict_roles[skill]
+        login = root[i].find('login').text
+        emp_roles_dict[name] = skill
+        # print(f'{name}:{skill} >>> {login}')
+    employees_bar, skill_bar = [], []
+    employees_kitchen, skill_kitchen = [], []
+    for pair in emp_roles_dict.items():
+        if ('Бармен' in pair or 'Бармен-официант' in pair or 'Бариста-кассир' in pair
+                or 'Менеджер' in pair or 'Старший бармен' in pair or 'Кассир' in pair or 'Бармен' in pair):
+            employees_bar.append([pair[0]])
+            skill_bar.append([pair[1]])
+        elif ('Бармен' in pair or 'Повар-универсал' in pair or 'Уборщик' in pair
+              or 'Повар-универсал' in pair or 'Старший повар' in pair or 'Шеф-повар' in pair):
+            employees_kitchen.append([pair[0]])
+            skill_kitchen.append([pair[1]])
+    employees_bar.insert(0, ['БАР'])
+    skill_bar.insert(0, ['Должность'])
+    employees_kitchen.insert(0, ['КУХНЯ'])
+    skill_kitchen.insert(0, ['Должность'])
+    # print(employees_bar)
+    # print(skill_bar)
+    # print(employees_kitchen)
+    # print(skill_kitchen)
+    return employees_bar, skill_bar, employees_kitchen, skill_kitchen
+
+# mk_dict_employees_roles()

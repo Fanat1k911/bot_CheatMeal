@@ -59,7 +59,7 @@ employees = [
 
 values = [[i[0] for i in employees[0]], [i[0] for i in employees[1]]]
 # print(values[0][1][:])
-for lst in values[1]:
-    print(lst[0])
+# for lst in values[0]:
+#     print(lst[0])
 # pprint.pprint(values[0][1])
 # pprint.pprint(values[1])
